@@ -8,3 +8,7 @@ __pycache__/
 .env
 
 *.pyc
+
+.doit.db*
+
+generated
