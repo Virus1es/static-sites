@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import time
+import subprocess
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -174,13 +175,25 @@ def save_markdown_report(metrics: pd.DataFrame) -> Path:
     """Generate Markdown report and publish it as a Nikola page."""
     output_file = OUTPUT_DIR / "results.md"
     
-    markdown = """<!--
+    git_commit = get_git_commit()
+    dataset_version = get_dataset_version()
+    build_time = get_build_time()
+    
+    markdown = f"""<!--
 .. title: Результаты эксперимента
 .. slug: results
 -->
 
 На текущем этапе используются синтетические данные,
 имитирующие результаты экспериментов по сравнению методов кэширования.
+
+## Версия результата
+
+| Параметр | Значение |
+|---|---|
+| Commit | `{git_commit}` |
+| Dataset version | `{dataset_version}` |
+| Build time | `{build_time}` |
 
 ## Сводные результаты
 
@@ -261,6 +274,29 @@ def save_cache_state(fingerprint: str) -> None:
         json.dumps(state, indent=2),
         encoding="utf-8",
     )
+
+def get_git_commit() -> str: 
+    """Return the current Git commit hash."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=ROOT_DIR,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        return result.stdout.strip()
+    except(OSError, subprocess.CalledProcessError):
+        return "unknown"
+
+def get_dataset_version() -> str:
+    """Return a short SHA-256 hash of the source dataset."""
+    return hashlib.sha256(DATA_FILE.read_bytes()).hexdigest()[:12]
+
+def get_build_time() -> str:
+    """Return the current UTC build time."""
+    return time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
 
 def main() -> None:
     parser = argparse.ArgumentParser(
