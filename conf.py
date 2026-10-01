@@ -55,7 +55,7 @@ NAVIGATION_ALT_LINKS = {
 }
 
 # Name of the theme to use.
-THEME = "bootblog4"
+THEME = "cache-lab"
 
 # A theme color. In default themes, it might be displayed by some browsers as
 # the browser UI color (eg. Chrome on Android). Other themes might also use it
@@ -973,7 +973,22 @@ PRETTY_URLS = True
 # SCHEDULE_ALL = False
 
 # Do you want to add a Mathjax config file?
-# MATHJAX_CONFIG = ""
+MATHJAX_CONFIG = r"""
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [
+            ['$latex ', '$'],
+            ['\\(', '\\)']
+        ],
+        displayMath: [
+            ['\\[', '\\]'],
+            ['$$', '$$']
+        ]
+    }
+});
+</script>
+"""
 
 # If you want support for the $.$ syntax (which may conflict with running
 # text!), just use this config:
