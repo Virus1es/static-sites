@@ -1,14 +1,18 @@
+# IDE
 .idea
 .vscode/
 
+# Python
 .venv/
-
 __pycache__/
-
-.env
-
 *.pyc
 
+# Nikola / Doit
 .doit.db*
+cache/
+output/
 
-generated
+# Nox
+.nox/
+
+.env

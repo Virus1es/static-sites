@@ -1,4 +1,9 @@
 from pathlib import Path
+import shutil
+import argparse
+import hashlib
+import json
+import time
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -7,7 +12,28 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_FILE = ROOT_DIR / "data" / "experiment_results.csv"
 OUTPUT_DIR = ROOT_DIR / "generated"
 
+SITE_IMAGES_DIR = ROOT_DIR / "images" / "generated"
+RESULTS_PAGE = ROOT_DIR / "pages" / "results.md"
+
+CACHE_DIR = ROOT_DIR / ".cache" / "experiment"
+CACHE_STATE_FILE = CACHE_DIR / "state.json"
+
+
+SITE_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+EXPECTED_OUTPUTS = (
+    OUTPUT_DIR / "metrics.csv",
+    OUTPUT_DIR / "results.md",
+    OUTPUT_DIR / "hit_rate.png",
+    OUTPUT_DIR / "latency.png",
+    OUTPUT_DIR / "latency_distribution.png",
+    SITE_IMAGES_DIR / "hit_rate.png",
+    SITE_IMAGES_DIR / "latency.png",
+    SITE_IMAGES_DIR / "latency_distribution.png",
+    RESULTS_PAGE,
+)
 
 def load_data() -> pd.DataFrame:
     """Load and validate source experimental data."""
@@ -92,6 +118,8 @@ def save_hit_rate_chart(metrics: pd.DataFrame) -> Path:
     plt.savefig(output_file, dpi=150)
     plt.close()
     
+    shutil.copy2(output_file, SITE_IMAGES_DIR / output_file.name)
+    
     return output_file
 
 def save_latency_chart(metrics: pd.DataFrame) -> Path:
@@ -109,6 +137,8 @@ def save_latency_chart(metrics: pd.DataFrame) -> Path:
     
     plt.savefig(output_file, dpi=150)
     plt.close()
+    
+    shutil.copy2(output_file, SITE_IMAGES_DIR / output_file.name)
     
     return output_file
 
@@ -136,26 +166,31 @@ def save_latency_distribution(data: pd.DataFrame) -> Path:
     plt.savefig(output_file, dpi=150)
     plt.close()
     
+    shutil.copy2(output_file, SITE_IMAGES_DIR / output_file.name)
+    
     return output_file
 
 def save_markdown_report(metrics: pd.DataFrame) -> Path:
-    """Generate a Markdown report from calculated metrics"""
-    output_file = OUTPUT_DIR / "result.md"
+    """Generate Markdown report and publish it as a Nikola page."""
+    output_file = OUTPUT_DIR / "results.md"
     
-    markdown = """# Результаты эксперимента
+    markdown = """<!--
+.. title: Результаты эксперимента
+.. slug: results
+-->
 
-Ha текущем этапе используются синтетические данные,
+На текущем этапе используются синтетические данные,
 имитирующие результаты экспериментов по сравнению методов кэширования.
 
 ## Сводные результаты
 
+
 """
     
-    table = metrics.to_markdown(index=False)
-    
-    markdown += table
+    markdown += metrics.to_markdown(index=False)
     
     markdown += """
+
 ## Метрики
 
 - **Hit Rate** — доля запросов, обработанных из кэша.
@@ -165,27 +200,104 @@ Ha текущем этапе используются синтетические
 
 ## Визуализация
 
-![Cache Hit Rate](hit_rate.png)
+### Cache Hit Rate
 
-![Average Latency](latency.png)
+![Cache Hit Rate](/images/generated/hit_rate.png)
 
-![Latency Distribution](latency_distribution.png)
+### Average Latency
+
+![Average Latency](/images/generated/latency.png)
+
+### Latency Distribution
+
+![Latency Distribution](/images/generated/latency_distribution.png)
 """
     
     output_file.write_text(markdown, encoding="utf-8")
     
+    RESULTS_PAGE.write_text(markdown, encoding="utf-8")
+    
     return output_file
 
+def calculate_fingerprint() -> str:
+    """Calculate a fingerprint of the input data and analysis code."""
+    hasher = hashlib.sha256()
+    
+    hasher.update(DATA_FILE.read_bytes())
+    hasher.update(b"\0")
+    hasher.update(Path(__file__).read_bytes())
+    
+    return hasher.hexdigest()
+
+def is_cache_valid(fingerprint: str) -> bool:
+    """Check whether cached analysis results are still valid."""
+    if not CACHE_STATE_FILE.exists():
+        return False
+    
+    if not all(path.exists() for path in EXPECTED_OUTPUTS):
+        return False
+    
+    try:
+        state = json.loads(
+            CACHE_STATE_FILE.read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError):
+        return False
+    
+    return state.get("fingerprint") == fingerprint
+
+def save_cache_state(fingerprint: str) -> None:
+    """Save the current analysis fingerprint."""
+    state = {
+        "fingerprint": fingerprint,
+        "data_file": str(DATA_FILE.relative_to(ROOT_DIR)),
+        "generated_at": time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ",
+            time.gmtime(),
+        ),
+    }
+    
+    CACHE_STATE_FILE.write_text(
+        json.dumps(state, indent=2),
+        encoding="utf-8",
+    )
+
 def main() -> None:
-    print(f"Loading data from: {DATA_FILE}")
+    parser = argparse.ArgumentParser(
+        description="Generate experiment results and charts."
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Ignore cache and recalculate results."
+    )
+    
+    args = parser.parse_args()
+    
+    start_time = time.perf_counter()
+    
+    print(f"Data file: {DATA_FILE}")
+    
+    fingerprint = calculate_fingerprint()
+    
+    if not args.force and is_cache_valid(fingerprint):
+        elapsed = time.perf_counter() - start_time
+        
+        print("Cache hit: input data and analysis code are unchanged.")
+        print("Analysis skipped.")
+        print(f"Elapsed time: {elapsed:.3f} s")
+        
+        return
+    
+    print("Cache miss: recalculating results.")
     
     data = load_data()
     
-    print(f"Loaded {len(data)} experiment recors.")
+    print(f"Loaded {len(data)} experiment records.")
     
     metrics = calculate_metrics(data)
     
-    print("\nCalculated metrics:")
+    print("\nCalculated  metrics: ")
     print(metrics.to_string(index=False))
     
     save_metrics(metrics)
@@ -194,10 +306,16 @@ def main() -> None:
     save_latency_distribution(data)
     save_markdown_report(metrics)
     
-    print("\nGenerated files:")
+    save_cache_state(fingerprint)
+    
+    elapsed = time.perf_counter() - start_time
+    
+    print("\nGenerated files: ")
     for file in sorted(OUTPUT_DIR.iterdir()):
         if file.is_file():
             print(f" - {file.relative_to(ROOT_DIR)}")
+    
+    print(f"\nAnalysis completed in {elapsed:.3f} s")
 
 if __name__ == "__main__":
     main()
