@@ -9,12 +9,16 @@ def run_pipeline(session: nox.Session, force: bool = False) -> None:
 
     analysis_start = time.perf_counter()
     
-    analyze_args = ["scripts/analyze.py"]
+    analyze_args = [
+        "python",
+        "-m",
+        "scripts.analyze",
+    ]
     
     if force:
         analyze_args.append("--force")
     
-    session.run("python", *analyze_args)
+    session.run(*analyze_args)
     
     analysis_time = time.perf_counter() - analysis_start
     
