@@ -1,0 +1,5 @@
+[project]
+name = "cache-research-lab"
+version = "0.1.0"
+description = "Reproducible experiment pipeline for publishing cache research results"
+requires-python = ">=3.12,<3.13"
