@@ -39,7 +39,7 @@ jobs:
       
       - name: Configurate GitHub Pages
         id: pages
-        uses: actions/configurate-pages@v5
+        uses: actions/configure-pages@v5
 
       - name: Build site
         env: 
