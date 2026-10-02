@@ -26,7 +26,7 @@ SITE_URL = os.getenv("SITE_URL", "https://localhost:8000").rstrip("/") + "/"
 # This is the URL where Nikola's output will be deployed.
 # If not set, defaults to SITE_URL
 # BASE_URL = "https://example.com/"
-BLOG_EMAIL = "trojan@niuitmo.ru"
+BLOG_EMAIL = "V1ru5es@yandex.ru"
 BLOG_DESCRIPTION = "Демонстрациионный вариант конвейера для публикации результатов"  # (translatable)
 
 DEFAULT_LANG = "ru"
