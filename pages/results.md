@@ -9,7 +9,6 @@
 На текущем этапе используются синтетические данные,
 имитирующие результаты экспериментов по сравнению методов кэширования.
 
-
 <div class="row mb-4">
 
 <div class="col-md-6 col-lg-3 mb-4">
@@ -50,14 +49,24 @@
 
 </div>
 
+<div class="alert alert-secondary">
+<h5 class="alert-heading">Версия результата</h5>
 
-## Версия результата
+<p class="mb-1">
+<strong>Commit:</strong>
+<code>f859873</code>
+</p>
 
-| Параметр | Значение |
-|---|---|
-| Commit | `ff1067b` |
-| Dataset version | `ae42ece19d31` |
-| Build time | `2026-10-01 22:20:36 UTC` |
+<p class="mb-1">
+<strong>Dataset version:</strong>
+<code>ae42ece19d31</code>
+</p>
+
+<p class="mb-0">
+<strong>Build time:</strong>
+<code>2026-10-02 18:20:14 UTC</code>
+</p>
+</div>
 
 ## Методика расчёта
 
@@ -99,13 +108,13 @@
 
 \\(N\\) — количество экспериментальных запусков.
 
-## Сводные результаты
+        ## Сводные результаты
 
-Результаты расчёта исследуемых показателей представлены <a href="#table-1">в таблице 1</a>.
+        Результаты расчёта исследуемых показателей представлены
+        <a href="#table-1">в таблице 1</a>.
 
-<div id="table-1">
-<p class="mb-2"><strong>Таблица 1 — Результаты сравнения методов кэширования</strong></p>
-<div class="table-responsive">
+        <p class="mb-2"><strong>Таблица 1 — Результаты сравнения методов кэширования</strong></p>
+<div id="table-1" class="table-responsive">
 <table class="dataframe table table-striped table-hover table-bordered">
   <thead>
     <tr style="text-align: right;">
@@ -161,7 +170,6 @@
   </tbody>
 </table>
 </div>
-</div>
 
 
 ## Визуализация
@@ -177,6 +185,7 @@
         frameborder="0"
         loading="lazy">
     </iframe>
+
     <figcaption class="figure-caption">
         Рисунок 1 — Сравнение средней доли попаданий в кэш
     </figcaption>
@@ -193,19 +202,28 @@
         frameborder="0"
         loading="lazy">
     </iframe>
+
     <figcaption class="figure-caption">
         Рисунок 2 — Сравнение средней задержки ответа
     </figcaption>
 </figure>
 
 Распределение значений задержки между отдельными экспериментальными
-запусками <a href="#fig-latency-distribution">представлено на рисунке 3</a>.
+запусками
+<a href="#fig-latency-distribution">
+представлено на рисунке 3
+</a>.
 
-<figure id="fig-latency-distribution" class="figure d-block text-center">
+<figure
+    id="fig-latency-distribution"
+    class="figure d-block text-center"
+>
     <img
         src="/images/generated/latency_distribution.png"
         class="figure-img img-fluid"
-        alt="Распределение задержки по экспериментальным запускам">
+        alt="Распределение задержки по экспериментальным запускам"
+    >
+
     <figcaption class="figure-caption">
         Рисунок 3 — Распределение задержки по экспериментальным запускам
     </figcaption>
