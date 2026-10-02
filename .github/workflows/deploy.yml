@@ -35,7 +35,11 @@ jobs:
         id: analysis-cache
         uses: actions/cache@v6
         with:
-          path: .cache
+          path: | 
+            .cache
+            generated
+            images/generated
+            files/plots
           key: ${{ runner.os }}-analysis-python3.12-${{ hashFiles('data/experiment_results.csv', 'scripts/*.py', 'requirements.txt', 'pyproject.toml') }}
           restore-keys: |
             ${{ runner.os }}-analysis-python3.12-
