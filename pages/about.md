@@ -3,8 +3,6 @@
 .. slug: about
 -->
 
-# О проекте
-
 ## Cache Research Lab
 
 **Cache Research Lab** — демонстрационный исследовательский сайт,
