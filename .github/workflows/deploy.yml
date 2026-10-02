@@ -31,9 +31,17 @@ jobs:
           python-version: "3.12"
           cache: pip
       
+      - name: Restore analysis cache
+        id: analysis-cache
+        uses: actions/cache@v6
+        with:
+          path: .cache
+          key: ${{ runner.os }}-analysis-python3.12-${{ hashFiles('data/experiment_results.csv', 'scripts/*.py', 'requirements.txt', 'pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-analysis-python3.12-
+
       - name: Install deps
         run: |
-          python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install nox
       
@@ -44,8 +52,7 @@ jobs:
       - name: Build site
         env: 
           SITE_URL: ${{ steps.pages.outputs.base_url }}
-        run: |
-          python -m nox -s build
+        run: python -m nox -s build
       
       - name: Valid generated site
         run: |
@@ -53,6 +60,7 @@ jobs:
           test -f output/results/index.html
           test -f output/plots/hit_rate.html
           test -f output/plots/latency.html
+      
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
