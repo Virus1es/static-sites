@@ -23,7 +23,7 @@ BLOG_TITLE = "Cache research"  # (translatable)
 # in a prominent link. Don't forget the protocol (http/https)!
 SITE_URL = os.getenv(
     "SITE_URL",
-    "https://localhost:8000/",
+    "https://localhost:8000",
 )
 # This is the URL where Nikola's output will be deployed.
 # If not set, defaults to SITE_URL
@@ -45,9 +45,9 @@ TRANSLATIONS = {
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
         (SITE_URL, "Главная"),
-        (f"{SITE_URL}experiment/", "Эксперимент"),
-        (f"{SITE_URL}results/", "Результаты"),
-        (f"{SITE_URL}about/", "O проекте")    
+        (f"{SITE_URL}/experiment/", "Эксперимент"),
+        (f"{SITE_URL}/results/", "Результаты"),
+        (f"{SITE_URL}/about/", "O проекте")    
     ),
 }
 
