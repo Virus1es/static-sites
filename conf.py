@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import os
 
 # !! This is the configuration of Nikola. !! #
 # !!  You should edit it to your liking.  !! #
@@ -20,7 +21,10 @@ BLOG_AUTHOR = "Vadim Yakubenko & Matvei Pahnin"  # (translatable)
 BLOG_TITLE = "Cache research"  # (translatable)
 # This is the main URL for your site. It will be used
 # in a prominent link. Don't forget the protocol (http/https)!
-SITE_URL = "https://localhost:8000/"
+SITE_URL = os.getenv(
+    "SITE_URL",
+    "https://localhost:8000/",
+)
 # This is the URL where Nikola's output will be deployed.
 # If not set, defaults to SITE_URL
 # BASE_URL = "https://example.com/"
@@ -40,10 +44,10 @@ TRANSLATIONS = {
 
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
-        ("/", "Главная"),
-        ("/experiment/", "Эксперимент"),
-        ("/results/", "Результаты"),
-        ("/about/", "O проекте")    
+        (SITE_URL, "Главная"),
+        (f"{SITE_URL}experiment/", "Эксперимент"),
+        (f"{SITE_URL}results/", "Результаты"),
+        (f"{SITE_URL}about/", "O проекте")    
     ),
 }
 

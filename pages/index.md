@@ -20,7 +20,7 @@
 в таблицы, графики и опубликованную веб-страницу.
 </p>
 
-<a class="btn btn-primary btn-lg" href="/results/" role="button">
+<a class="btn btn-primary btn-lg" href="results/" role="button">
 Посмотреть результаты
 </a>
 </div>

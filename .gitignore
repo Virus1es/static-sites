@@ -16,3 +16,7 @@ output/
 .nox/
 
 .env
+
+.cache/
+generated
+files/

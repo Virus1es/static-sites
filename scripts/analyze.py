@@ -5,12 +5,14 @@ import hashlib
 import json
 import time
 import subprocess
+import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+SITE_BASE_URL = os.getenv("SITE_URL", "").rstrip("/")
 DATA_FILE = ROOT_DIR / "data" / "experiment_results.csv"
 OUTPUT_DIR = ROOT_DIR / "generated"
 
@@ -40,6 +42,15 @@ EXPECTED_OUTPUTS = (
     ROOT_DIR / "files" / "plots" / "latency.html",
     RESULTS_PAGE,
 )
+
+def site_url(path: str) -> str:
+    """Build a URL relative to the configured site base URL."""
+    normalized_path = path.lstrip("/")
+    
+    if SITE_BASE_URL:
+        return f"{SITE_BASE_URL}/{normalized_path}"
+    
+    return f"/{normalized_path}"
 
 def load_data() -> pd.DataFrame:
     """Load and validate source experimental data."""
@@ -424,7 +435,7 @@ def save_markdown_report(metrics: pd.DataFrame) -> Path:
 
 <figure id="fig-hit-rate" class="figure d-block text-center">
     <iframe
-        src="/plots/hit_rate.html"
+        src="{site_url("plots/hit_rate.html")}"
         width="100%"
         height="500"
         frameborder="0"
@@ -440,7 +451,7 @@ def save_markdown_report(metrics: pd.DataFrame) -> Path:
 
 <figure id="fig-latency" class="figure d-block text-center">
     <iframe
-        src="/plots/latency.html"
+        src="{site_url("plots/latency.html")}"
         width="100%"
         height="500"
         frameborder="0"
@@ -456,7 +467,7 @@ def save_markdown_report(metrics: pd.DataFrame) -> Path:
 
 <figure id="fig-latency-distribution" class="figure d-block text-center">
     <img
-        src="/images/generated/latency_distribution.png"
+        src="{site_url("images/generated/latency_distribution.png")}"
         class="figure-img img-fluid"
         alt="Распределение задержки по экспериментальным запускам">
     <figcaption class="figure-caption">
