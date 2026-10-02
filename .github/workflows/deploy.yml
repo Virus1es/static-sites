@@ -128,7 +128,7 @@ jobs:
             -O \
             -r \
             -P 2222 \
-            output/. \
+            output/* \
             "$HELIOS_LOGIN@helios.cs.ifmo.ru:~/public_html/.static-site-next/"
           
           sshpass -e ssh \
