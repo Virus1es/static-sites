@@ -20,7 +20,7 @@ jobs:
   build:
     name: Build site
     runs-on: ubuntu-24.04
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -65,13 +65,19 @@ jobs:
           test -f output/plots/hit_rate.html
           test -f output/plots/latency.html
       
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-output
+          path: output/
+
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
           path: output
   
-  deploy:
-    name: Deploy site
+  deploy-ghpages:
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-24.04
     needs: build
 
@@ -83,3 +89,49 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+  
+  deploy-helios:
+    name: Deploy to Helios
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Download site artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: site-output
+          path: output
+      
+      - name: Install sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+      
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -p 2222 helios.cs.ifmo.ru >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      
+      - name: Deploy site to Helios
+        env:
+          HELIOS_LOGIN: ${{ secrets.HELIOS_LOGIN }}
+          SSHPASS: ${{ secrets.HELIOS_PASSWORD }}
+        run: |
+          sshpass -e ssh \
+            -p 2222 \
+            "$HELIOS_LOGIN@helios.cs.ifmo.ru" \
+            'rm -rf ~/public_html/.static-site-next && mkdir -p ~/public_html/.static-site-next'
+          
+          sshpass -e scp \
+            -O \
+            -r \
+            -P 2222 \
+            output/. \
+            "$HELIOS_LOGIN@helios.cs.ifmo.ru:~/public_html/.static-site-next/"
+          
+          sshpass -e ssh \
+            -p 2222 \
+             "$HELIOS_LOGIN@helios.cs.ifmo.ru" \
+             'rm -rf ~/public_html/static-site && mv ~/public_html/.static-site-next/ ~/public_html/static-site'
