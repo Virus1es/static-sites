@@ -292,17 +292,14 @@ def generate_report(metrics: pd.DataFrame) -> Path:
     markdown += "\n\n" + version_block
     markdown += "\n\n" + methodology
 
-    markdown += dedent(
-        f"""
+    markdown += f"""\n
+## Сводные результаты
 
-        ## Сводные результаты
+Результаты расчёта исследуемых показателей представлены
+<a href="#table-1">в таблице 1</a>.
 
-        Результаты расчёта исследуемых показателей представлены
-        <a href="#table-1">в таблице 1</a>.
-
-        {results_table}
+{results_table}
         """
-    ).strip()
 
     markdown += "\n\n" + visualizations
 
