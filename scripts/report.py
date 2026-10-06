@@ -302,7 +302,7 @@ def generate_report(metrics: pd.DataFrame) -> Path:
 
         {results_table}
         """
-    )
+    ).strip()
 
     markdown += "\n\n" + visualizations
 
